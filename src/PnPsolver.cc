@@ -588,7 +588,7 @@ void PnPsolver::choose_control_points(void)
         &DC,                              // W，实际是特征值
         &UCt,                             // U，实际是特征向量
         0,                                // V
-        CV_SVD_MODIFY_A | CV_SVD_U_T);    // flags
+        CV_HAL_SVD_MODIFY_A | CV_SVD_U_T);    // flags
 
   cvReleaseMat(&PW0);
 
@@ -763,7 +763,7 @@ double PnPsolver::compute_pose(double R[3][3], double t[3])
   // 求M'M
   cvMulTransposed(M, &MtM, 1);
   // 该函数实际是特征值分解，得到特征值D，特征向量ut，对应EPnP论文式(8)中的vi
-  cvSVD(&MtM, &D, &Ut, 0, CV_SVD_MODIFY_A | CV_SVD_U_T); 
+  cvSVD(&MtM, &D, &Ut, 0, CV_HAL_SVD_MODIFY_A | CV_SVD_U_T); 
   cvReleaseMat(&M);
 
   // Step 4.2 计算分情况讨论的时候需要用到的矩阵L和\rho
@@ -934,7 +934,7 @@ void PnPsolver::estimate_R_and_t(double R[3][3], double t[3])
   }
 
   // Step 3 对得到的H矩阵进行奇异值分解
-  cvSVD(&ABt, &ABt_D, &ABt_U, &ABt_V, CV_SVD_MODIFY_A);
+  cvSVD(&ABt, &ABt_D, &ABt_U, &ABt_V, CV_HAL_SVD_MODIFY_A);
 
   // Step 4 R=U*V^T, 并且进行合法性检查
   for(int i = 0; i < 3; i++)

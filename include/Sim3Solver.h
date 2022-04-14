@@ -35,7 +35,7 @@
 
 #include <opencv2/opencv.hpp>
 #include <vector>
-
+#include<opencv2/core/core_c.h>
 #include "KeyFrame.h"
 
 
