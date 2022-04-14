@@ -388,7 +388,7 @@ cv::Mat Tracking::GrabImageMonocular(const cv::Mat &im,const double &timestamp)
     }
 
     // Step 2 ：构造Frame
-    //判断该帧是不是初始化
+    // 判断该帧是不是初始化
     if(mState==NOT_INITIALIZED || mState==NO_IMAGES_YET) //没有成功初始化的前一个状态就是NO_IMAGES_YET
         mCurrentFrame = Frame(
             mImGray,

@@ -434,6 +434,7 @@ void Frame::ExtractORB(int flag, const cv::Mat &im)
     if(flag==0)
         // 左图的话就套使用左图指定的特征点提取器，并将提取结果保存到对应的变量中 
         // 这里使用了仿函数来完成，重载了括号运算符 ORBextractor::operator() 
+        // 仿汉数时可以行使函数功能的类，它可以拥有自己的数据成员和成员变量，意味着仿函数拥有状态，这在一般函数中不可能，且仿函数速度更快。
         (*mpORBextractorLeft)(im,				//待提取特征点的图像
 							  cv::Mat(),		//掩摸图像, 实际没有用到
 							  mvKeys,			//输出变量，用于保存提取后的特征点

@@ -99,7 +99,7 @@ System::System(const string &strVocFile,					//词典文件路径
     mpFrameDrawer = new FrameDrawer(mpMap);
     mpMapDrawer = new MapDrawer(mpMap, strSettingsFile);
 
-    //在本主进程中初始化追踪线程
+    //! 在本主进程中初始化追踪线程
     //Initialize the Tracking thread
     //(it will live in the main thread of execution, the one that called this constructor)
     mpTracker = new Tracking(this,						//现在还不是很明白为什么这里还需要一个this指针  TODO  
@@ -296,7 +296,7 @@ cv::Mat System::TrackMonocular(const cv::Mat &im, const double &timestamp)
         cerr << "ERROR: you called TrackMonocular but input sensor was not set to Monocular." << endl;
         exit(-1);
     }
-
+    // 模式判断
     // Check mode change
     {
         // 独占锁，主要是为了mbActivateLocalizationMode和mbDeactivateLocalizationMode不会发生混乱
@@ -337,7 +337,7 @@ cv::Mat System::TrackMonocular(const cv::Mat &im, const double &timestamp)
     }
     }
 
-    //获取相机位姿的估计结果
+    //!获取相机位姿的估计结果
     cv::Mat Tcw = mpTracker->GrabImageMonocular(im,timestamp);
 
     unique_lock<mutex> lock2(mMutexState);

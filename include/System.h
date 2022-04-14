@@ -68,7 +68,7 @@ public:
 public:
 
     // Initialize the SLAM system. It launches the Local Mapping, Loop Closing and Viewer threads.
-    //构造函数，用来初始化整个系统。
+    //! 构造函数，用来初始化整个系统。
     System(const string &strVocFile,            //指定ORB字典文件的路径
            const string &strSettingsFile,       //指定配置文件的路径
            const eSensor sensor,                //指定所使用的传感器类型

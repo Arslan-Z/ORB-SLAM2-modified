@@ -466,11 +466,11 @@ static int bit_pattern_31_[256*4] =
 
 //特征点提取器的构造函数
 
-ORBextractor::ORBextractor(int _nfeatures,		//指定要提取的特征点数目
-						   float _scaleFactor,	//指定图像金字塔的缩放系数
-						   int _nlevels,		//指定图像金字塔的层数
-						   int _iniThFAST,		//指定初始的FAST特征点提取参数，可以提取出最明显的角点
-						   int _minThFAST):		//如果初始阈值没有检测到角点，降低到这个阈值提取出弱一点的角点
+ORBextractor::ORBextractor(int _nfeatures,		// 指定要提取的特征点数目
+						   float _scaleFactor,	// 指定图像金字塔的缩放系数
+						   int _nlevels,		// 指定图像金字塔的层数
+						   int _iniThFAST,		// 指定初始的FAST特征点提取参数，可以提取出最明显的角点
+						   int _minThFAST):		// 如果初始阈值没有检测到角点，降低到这个阈值提取出弱一点的角点
     nfeatures(_nfeatures), scaleFactor(_scaleFactor), nlevels(_nlevels),
     iniThFAST(_iniThFAST), minThFAST(_minThFAST)//设置这些参数
 {
@@ -479,13 +479,13 @@ ORBextractor::ORBextractor(int _nfeatures,		//指定要提取的特征点数目
 	//存储这个sigma^2，其实就是每层图像相对初始图像缩放因子的平方
     mvLevelSigma2.resize(nlevels);
 	//对于初始图像，这两个参数都是1
-    mvScaleFactor[0]=1.0f;
+    mvScaleFactor[0]=1.0f; // 最底层为level0
     mvLevelSigma2[0]=1.0f;
 	//然后逐层计算图像金字塔中图像相当于初始图像的缩放系数 
-    for(int i=1; i<nlevels; i++)  
+    for(int i=1; i<nlevels; i++)  // 8层
     {
 		//其实就是这样累乘计算得出来的
-        mvScaleFactor[i]=mvScaleFactor[i-1]*scaleFactor;
+        mvScaleFactor[i]=mvScaleFactor[i-1]*scaleFactor; // 1.2倍缩放
 		//原来这里的sigma^2就是每层图像相对于初始图像缩放因子的平方
         mvLevelSigma2[i]=mvScaleFactor[i]*mvScaleFactor[i];
     }
@@ -495,8 +495,8 @@ ORBextractor::ORBextractor(int _nfeatures,		//指定要提取的特征点数目
     mvInvLevelSigma2.resize(nlevels);
     for(int i=0; i<nlevels; i++)
     {
-        mvInvScaleFactor[i]=1.0f/mvScaleFactor[i];
-        mvInvLevelSigma2[i]=1.0f/mvLevelSigma2[i];
+        mvInvScaleFactor[i]=1.0f / mvScaleFactor[i];
+        mvInvLevelSigma2[i]=1.0f / mvLevelSigma2[i];
     }
 
     //调整图像金字塔vector以使得其符合设定的图像层数
@@ -552,7 +552,9 @@ ORBextractor::ORBextractor(int _nfeatures,		//指定要提取的特征点数目
     
     int vmin = cvCeil(HALF_PATCH_SIZE * sqrt(2.f) / 2);
 	//半径的平方
-    const double hp2 = HALF_PATCH_SIZE*HALF_PATCH_SIZE;
+    const double hp2 = HALF_PATCH_SIZE * HALF_PATCH_SIZE;
+
+    // 分两段来求，就是为了对称性。为了灰度质心法计算方向的时
 
 	//利用圆的方程计算每行像素的u坐标边界（max）
     for (v = 0; v <= vmax; ++v)
@@ -1051,7 +1053,7 @@ void ORBextractor::ComputeKeyPointsOctTree(
     {
 		//计算这层图像的坐标边界， NOTICE 注意这里是坐标边界，EDGE_THRESHOLD指的应该是可以提取特征点的有效图像边界，后面会一直使用“有效图像边界“这个自创名词
         const int minBorderX = EDGE_THRESHOLD-3;			//这里的3是因为在计算FAST特征点的时候，需要建立一个半径为3的圆
-        const int minBorderY = minBorderX;					//minY的计算就可以直接拷贝上面的计算结果了
+        const int minBorderY = EDGE_THRESHOLD-3;					//minY的计算就可以直接拷贝上面的计算结果了
         const int maxBorderX = mvImagePyramid[level].cols-EDGE_THRESHOLD+3;
         const int maxBorderY = mvImagePyramid[level].rows-EDGE_THRESHOLD+3;
 
@@ -1551,7 +1553,7 @@ void ORBextractor::operator()( InputArray _image, InputArray _mask, vector<KeyPo
     // Step 3 计算图像的特征点，并且将特征点进行均匀化。均匀的特征点可以提高位姿计算精度
 	// 存储所有的特征点，注意此处为二维的vector，第一维存储的是金字塔的层数，第二维存储的是那一层金字塔图像里提取的所有特征点
     vector < vector<KeyPoint> > allKeypoints; 
-    //使用四叉树的方式计算每层图像的特征点并进行分配
+    //! 使用四叉树的方式计算每层图像的特征点并进行分配
     ComputeKeyPointsOctTree(allKeypoints);
 
 	//使用传统的方法提取并平均分配图像的特征点，作者并未使用
@@ -1664,12 +1666,12 @@ void ORBextractor::ComputePyramid(cv::Mat image)
 		//计算本层图像的像素尺寸大小
         Size sz(cvRound((float)image.cols*scale), cvRound((float)image.rows*scale));
 		//全尺寸图像。包括无效图像区域的大小。将图像进行“补边”，EDGE_THRESHOLD区域外的图像不进行FAST角点检测
-        Size wholeSize(sz.width + EDGE_THRESHOLD*2, sz.height + EDGE_THRESHOLD*2);
+        Size wholeSize(sz.width + EDGE_THRESHOLD*2, sz.height + EDGE_THRESHOLD*2); // 图像扩充
 		// 定义了两个变量：temp是扩展了边界的图像，masktemp并未使用
         Mat temp(wholeSize, image.type()), masktemp;
         // mvImagePyramid 刚开始时是个空的vector<Mat>
 		// 把图像金字塔该图层的图像指针mvImagePyramid指向temp的中间部分（这里为浅拷贝，内存相同）
-        mvImagePyramid[level] = temp(Rect(EDGE_THRESHOLD, EDGE_THRESHOLD, sz.width, sz.height));
+        mvImagePyramid[level] = temp(Rect(EDGE_THRESHOLD, EDGE_THRESHOLD, sz.width, sz.height)); // 原图提出来
 
         // Compute the resized image
 		//计算第0层以上resize后的图像
@@ -1703,7 +1705,7 @@ void ORBextractor::ComputePyramid(cv::Mat image)
 			/*Various border types, image boundaries are denoted with '|'
 			* BORDER_REPLICATE:     aaaaaa|abcdefgh|hhhhhhh
 			* BORDER_REFLECT:       fedcba|abcdefgh|hgfedcb
-			* BORDER_REFLECT_101:   gfedcb|abcdefgh|gfedcba
+			* BORDER_REFLECT_101:   gfedcb|abcdefgh|gfedcba  镜像对称
 			* BORDER_WRAP:          cdefgh|abcdefgh|abcdefg
 			* BORDER_CONSTANT:      iiiiii|abcdefgh|iiiiiii  with some specified 'i'
 			*/
